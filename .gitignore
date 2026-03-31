@@ -1,0 +1,10 @@
+tf_env/
+tfenv/
+__pycache__/
+*.pyc
+datasets/combined/
+datasets/combined_split/
+datasets/isic_raw/
+datasets/new_split/
+datasets/preprocessed csv files/
+*.jpg
