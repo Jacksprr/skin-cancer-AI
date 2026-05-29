@@ -11,6 +11,7 @@ import hashlib
 # ===============================
 st.set_page_config(page_title="Skin Check AI", layout="wide")
 
+st.title("Early Skin Cancer Detection using AI")
 # ===============================
 # PATHS
 # ===============================
@@ -148,14 +149,24 @@ if analyze:
             idx1, is_c1, conf1 = evaluate(p1)
             idx2, is_c2, conf2 = evaluate(p2)
 
-            if is_c1 or is_c2:
-                final_idx = idx1 if conf1 > conf2 else idx2
-                status_placeholder.error("🚨 SKIN CANCER DETECTED")
-                winning_prob = max(conf1, conf2)
-            else:
-                final_idx = np.argmax(ensemble)
-                status_placeholder.success("✅ NO SKIN CANCER")
-                winning_prob = ensemble[final_idx]
+            # ✅ FIX: define final_idx
+            final_idx = idx1 if conf1 > conf2 else idx2
+
+            # ✅ winning probability
+            winning_prob = max(conf1, conf2) if (is_c1 or is_c2) else ensemble[np.argmax(ensemble)]
+
+            # ✅ label for display
+            label = CLASS_NAMES[final_idx]
+
+            # ✅ status logic (correct)
+            if final_idx in [1, 4]:  # BCC, MEL
+                status_placeholder.error(f"🚨 SKIN CANCER DETECTED ")
+
+            elif final_idx == 0:  # AKIEC
+                status_placeholder.warning(f"⚠️ PRE-CANCEROUS (RISK) ")
+
+            else:  # BKL, NV, DF, VASC
+                status_placeholder.success(f"✅ NON-CANCEROUS (BENIGN) ")
 
             acc_val, conf_val = get_stable_dynamic_metrics(age, sex, loc, winning_prob)
 
@@ -165,4 +176,4 @@ if analyze:
                 c2.metric("Confidence", f"{conf_val*100:.2f}%")
 
             label_placeholder.markdown("### Classification Type")
-            class_placeholder.markdown(f"## {CLASS_NAMES[final_idx]}")
+            class_placeholder.markdown(f"## {label}")
